@@ -1,44 +1,51 @@
 group 'card-applets'
 apply plugin: 'javacard'
 
-// Common settings, definitions
-final def rootPath = rootDir.absolutePath
-final def libs = rootPath + '/libs'
-final def libs_gp211 = rootPath + '/libs/globalplatform-2_1_1'
-final def libsSdk = rootPath + '/libs-sdks'
-final def JC304 = libsSdk + '/jc304_kit'
+compileJava {
+    dependsOn 'buildJavaCard'
+}
 
+buildJavaCard {
+    dependsOn ':tools:buildJavaCard'
+}
 
-convertJavacard {
-    dependsOn ':tools:convertJavacard'
+jar {
+    manifest {
+        attributes ("Uri":_getGitHash(projectDir))
+        attributes ("Commit-hash":_getUri(projectDir))
+    }
+    baseName 'idpass_datastorage'
 }
 
 javacard {
-    sdkVersion = "3.0.4"
+    config {
+        jckit _JC_SELECTED
+        // Using custom repo with jcardsim
+        addSurrogateJcardSimRepo false
+        addImplicitJcardSim false
+        addImplicitJcardSimJunit false
 
-    cap {
-        packageName = 'org.idpass.datastorage'
-        version = '0.1'
-        aid = '0xF7:0x69:0x64:0x70:0x61:0x73:0x73:0x03'
+        cap {
+            packageName = 'org.idpass.datastorage'
+            version = '0.1'
+            aid = '0xF7:0x69:0x64:0x70:0x61:0x73:0x73:0x03'
+            output 'datastorage.cap'
 
-        applet {
-            className = 'DatastorageApplet'
-            aid = '0xf7:0x69:0x64:0x70:0x61:0x73:0x73:0x03:0x01:0x00:0x01'
-        }
+            applet {
+                className = 'DatastorageApplet'
+                aid = '0xf7:0x69:0x64:0x70:0x61:0x73:0x73:0x03:0x01:0x00:0x01'
+            }
 
-        dependencies {
-            compile fileTree(dir: libs_gp211, include: '*.jar')
-            javacardExport files([
-                libs_gp211,
-                rootDir.absolutePath + '/build/javacard/'
-            ])
-            compile files(rootDir.absolutePath + '/build/classes/java/main/')
-            compile project(':tools')
+            dependencies {
+                remote 'local:gp211:2.1.1'
+                remote 'local:tools:0.0.1'
+            }
         }
     }
 }
 
 compileJava {
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
+    sourceCompatibility = _sourceCompatibility 
+    targetCompatibility = _targetCompatibility 
 }
+
