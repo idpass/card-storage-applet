@@ -62,7 +62,7 @@ public class DatastorageApplet extends IdpassApplet implements SIOAuthListener {
     private byte                  secret;
     private VirtualCardRepository virtualCardRepository;
 
-    protected DatastorageApplet(byte[] bArray, short bOffset, byte bLength) {
+    protected DatastorageApplet(byte[] bArray, short bOffset, byte bLength, byte[] retval) {
          byte lengthAID = bArray[bOffset];
         short offsetAID = (short) (bOffset + 1);
         short offset = bOffset;
@@ -86,8 +86,9 @@ public class DatastorageApplet extends IdpassApplet implements SIOAuthListener {
 
         }
 
-        this.aid_offset = offsetAID ;
-        this.aid_len = lengthAID;
+        Util.setShort(retval,(short)0x0000,offsetAID);
+        retval[2] = lengthAID;
+        retval[3] = 0x00;
 
         this.secret = secret;
         virtualCardRepository = VirtualCardRepository.create();
