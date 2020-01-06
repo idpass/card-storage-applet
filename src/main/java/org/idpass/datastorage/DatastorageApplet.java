@@ -86,9 +86,11 @@ public class DatastorageApplet extends IdpassApplet implements SIOAuthListener {
 
         }
 
+        this.aid_offset = offsetAID ;
+        this.aid_len = lengthAID;
+
         this.secret = secret;
         virtualCardRepository = VirtualCardRepository.create();
-        register(bArray, offsetAID, lengthAID);
     }
     
     public DatastorageApplet(byte secret) {
