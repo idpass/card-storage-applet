@@ -31,7 +31,17 @@ public class DatastorageApplet extends IdpassApplet implements SIOAuthListener {
     private static final short NO_ACTIVE_VIRTUAL_CARDS = (short) 0xFFFF;
 
     public static void install(byte[] bArray, short bOffset, byte bLength) {
-        byte lengthAID = bArray[bOffset];
+        DatastorageApplet applet = new DatastorageApplet(bArray, bOffset, bLength);
+
+        // GP-compliant JavaCard applet registration
+        applet.register(bArray, (short)(bOffset + 1), bArray[bOffset]);
+    }
+
+    private byte                  secret;
+    private VirtualCardRepository virtualCardRepository;
+
+    protected DatastorageApplet(byte[] bArray, short bOffset, byte bLength) {
+         byte lengthAID = bArray[bOffset];
         short offsetAID = (short) (bOffset + 1);
         short offset = bOffset;
         offset += (bArray[offset]); // skip aid
@@ -54,19 +64,10 @@ public class DatastorageApplet extends IdpassApplet implements SIOAuthListener {
 
         }
 
-        // GP-compliant JavaCard applet registration
-        DatastorageApplet applet = new DatastorageApplet(secret);
-        applet.register(bArray, offsetAID, lengthAID);
-    }
-
-    private byte                  secret;
-    private VirtualCardRepository virtualCardRepository;
-
-    public DatastorageApplet(byte secret) {
         this.secret = secret;
         virtualCardRepository = VirtualCardRepository.create();
     }
-
+    
     /**
      * Shareable interface standard call from JCOP
      */
